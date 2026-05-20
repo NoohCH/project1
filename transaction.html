@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal Budget Tracker</title>
+  <style>
+    :root {
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --income-color: #2ecc71;
+      --expense-color: #e74c3c;
+      --border-color: #e0e0e0;
+      --btn-bg: #3498db;
+      --btn-hover: #2980b9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 450px;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+
+    .balance-container {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    #balance {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .is-income { color: var(--income-color); }
+    .is-expense { color: var(--expense-color); }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-control {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: #666;
+    }
+
+    input, select {
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--btn-bg);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.5rem 0;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    button[type="submit"] {
+      background-color: var(--btn-bg);
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    button[type="submit"]:hover {
+      background-color: var(--btn-hover);
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #444;
+    }
+
+    .entry-list {
+      list-style: none;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .entry-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg-color);
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      border-left: 5px solid transparent;
+      transition: transform 0.1s ease;
+    }
+
+    .entry-item:hover {
+      transform: translateX(2px);
+    }
+
+    .entry-item.income-item { border-left-color: var(--income-color); }
+    .entry-item.expense-item { border-left-color: var(--expense-color); }
+
+    .entry-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .entry-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .entry-amount {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: color 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: var(--expense-color);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Dashboard</h1>
+    <div class="balance-container">
+      <div id="balance">$0.00</div>
+    </div>
+
+    <form id="transaction-form">
+      <div class="form-control">
+        <label for="text">Entry Name</label>
+        <input type="text" id="text" placeholder="e.g., Salary, Groceries" required>
+      </div>
+      
+      <div class="form-control">
+        <label for="amount">Amount</label>
+        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0.01" required>
+      </div>
+
+      <div class="form-control">
+        <label>Type</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="type" value="income" checked> Income
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="type" value="expense"> Expense
+          </label>
+        </div>
+      </div>
+
+      <button type="submit">Add Transaction</button>
+    </form>
+
+    <h3>Transaction History</h3>
+    <ul id="list" class="entry-list">
+      <!-- Transactions will be injected here by JS -->
+    </ul>
+  </div>
+
+  <script>
+    // DOM Elements
+    const balanceEl = document.getElementById('balance');
+    const listEl = document.getElementById('list');
+    const form = document.getElementById('transaction-form');
+    const textInput = document.getElementById('text');
+    const amountInput = document.getElementById('amount');
+
+    // Local Storage Setup
+    const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
+    let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
+
+    // Format money helper
+    function formatMoney(number) {
+      return '$' + Math.abs(number).toFixed(2);
+    }
+
+    // Add transaction
+    function addTransaction(e) {
+      e.preventDefault();
+
+      const text = textInput.value.trim();
+      const amountValue = parseFloat(amountInput.value);
+      const type = document.querySelector('input[name="type"]:checked').value;
+
+      // Make expense amount negative mathematically for calculations
+      const finalAmount = type === 'expense' ? -amountValue : amountValue;
+
+      const transaction = {
+        id: generateID(),
+        text: text,
+        amount: finalAmount,
+        type: type
+      };
+
+      transactions.push(transaction);
+      addTransactionDOM(transaction);
+      updateValues();
+      updateLocalStorage();
+
+      // Reset form fields
+      textInput.value = '';
+      amountInput.value = '';
+      textInput.focus();
+    }
+
+    // Generate random ID
+    function generateID() {
+      return Math.floor(Math.random() * 100000000);
+    }
+
+    // Add transactions to DOM list
+    function addTransactionDOM(transaction) {
+      // Remove empty state message if it exists
+      const emptyState = document.querySelector('.empty-state');
+      if (emptyState) emptyState.remove();
+
+      const li = document.createElement('li');
+      li.classList.add('entry-item');
+      li.classList.add(transaction.type === 'income' ? 'income-item' : 'expense-item');
+
+      li.innerHTML = `
+        <div class="entry-details">
+          <span class="entry-name">${transaction.text}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="entry-amount ${transaction.type === 'income' ? 'is-income' : 'is-expense'}">
+            ${transaction.type === 'income' ? '+' : '-'}${formatMoney(transaction.amount)}
+          </span>
+          <button class="delete-btn" onclick="removeTransaction(${transaction.id})">&times;</button>
+        </div>
+      `;
+
+      listEl.appendChild(li);
+    }
+
+    // Update the balance
+    function updateValues() {
+      const amounts = transactions.map(transaction => transaction.amount);
+      const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+
+      balanceEl.innerText = (total < 0 ? '-' : '') + formatMoney(total);
+      
+      // Update color based on positive/negative
+      balanceEl.className = '';
+      if (total > 0) balanceEl.classList.add('is-income');
+      else if (total < 0) balanceEl.classList.add('is-expense');
+    }
+
+    // Remove transaction by ID
+    function removeTransaction(id) {
+      transactions = transactions.filter(transaction => transaction.id !== id);
+      updateLocalStorage();
+      init();
+    }
+
+    // Update local storage transactions
+    function updateLocalStorage() {
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+
+    // Init app
+    function init() {
+      listEl.innerHTML = '';
+      
+      if (transactions.length === 0) {
+        listEl.innerHTML = '<li class="empty-state">No transactions yet. Add one above!</li>';
+      } else {
+        transactions.forEach(addTransactionDOM);
+      }
+      
+      updateValues();
+    }
+
+    // Event Listeners
+    form.addEventListener('submit', addTransaction);
+
+    // Run initialization
+    init();
+  </script>
+</body>
+</html>
